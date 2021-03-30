@@ -38,7 +38,6 @@ public class SteeringBehaviour : MonoBehaviour
         if (!CanAvoid())
         {
             rb.velocity += steer * Time.fixedDeltaTime;
-            //rb.AddForce(steer * Time.fixedDeltaTime);
         }
         else
         {

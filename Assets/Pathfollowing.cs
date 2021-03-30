@@ -4,22 +4,29 @@ using UnityEngine;
 
 public class Pathfollowing : MonoBehaviour
 {
+    [Header("Inspector values")]
+    public Rigidbody2D rb;
+    public SteeringBehaviour sb;
     public LineRenderer pathLR;
     public LineRenderer desiredVelocityLR;
     public LineRenderer pathNormalLR;
-    public List<Transform> positionList;
-    private Path[] path;
+
+    [Header("Path following attributes")]
     public float predictionDistance;
     public float directionDistance;
     public float startingBestDistance;
     public float radius;
-    private int ignorePath;
-    public Rigidbody2D rb;
-    public SteeringBehaviour sb;
 
+    [Header("Patrol path generation")]
     public float pathRadius;
     public float pathTheta;
     public float positionModifierRange;
+
+    [Header("HeadTo path generation")]
+    public float yOffset;
+    public float chunkSize;
+
+    private Path[] path;
 
     class Path
     {
@@ -36,18 +43,16 @@ public class Pathfollowing : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GeneratePath();
+        GeneratePatrolPath();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //GeneratePath();
-        //DrawPath();
-        //FollowPath();
+
     }
 
-    void GeneratePath()
+    void GeneratePatrolPath()
     {
         int numVertices = 360 / (int) pathTheta;
         path = new Path[numVertices + 1];
@@ -88,9 +93,43 @@ public class Pathfollowing : MonoBehaviour
         for (int i = 0; i < path.Length; i++)
         {
             pathLR.SetPosition(i, (Vector3) path[i].start);
-            Debug.Log(i + " values: " + path[i].start + "  " + path[i].end);
+        }
+    }
+
+    public void GenerateHeadToPath(Vector2 headToPosition)
+    {
+        
+        Vector2 dir = (headToPosition - (Vector2)transform.position).normalized;
+        float distance = Vector2.Distance((Vector2)transform.position, headToPosition);
+        int numChunks = Mathf.RoundToInt(distance / chunkSize);
+        pathLR.positionCount = numChunks;
+        pathLR.loop = false;
+        Debug.Log("distance = " + distance + " chunksize " + chunkSize + " numchunks " + numChunks);
+        path = new Path[numChunks];
+        if (numChunks > 0)
+        {
+            path[0] = new Path((Vector2)transform.position, Vector2.zero);
+            for (int i = 0; i < numChunks; i++)
+            {
+                path[i].end = path[i].start + dir * chunkSize + new Vector2(0f, Random.Range(-yOffset, yOffset));
+                
+
+                if (i < numChunks - 1)
+                {
+                    path[i + 1] = new Path(path[i].end, Vector2.zero);
+                }
+            }
+            path[numChunks - 1].end = headToPosition;
+        }
+        else
+        {
+            path[0] = new Path((Vector2)transform.position, headToPosition);
         }
         
+        for (int i = 0; i < numChunks; i++)
+        {
+            pathLR.SetPosition(i, path[i].start);
+        }
     }
 
     public void FollowPath()

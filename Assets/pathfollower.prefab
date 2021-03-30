@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 922484425981185543}
   - component: {fileID: 922484425981185547}
   - component: {fileID: -8249690423942160738}
+  - component: {fileID: 142372303471697521}
   m_Layer: 0
   m_Name: pathfollower
   m_TagString: Untagged
@@ -67,23 +68,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 915aaf4ae6f5ccf4bbb9e26253d4ceeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rb: {fileID: 922484425981185543}
+  sb: {fileID: 922484425981185545}
   pathLR: {fileID: 0}
   desiredVelocityLR: {fileID: 0}
   pathNormalLR: {fileID: 0}
-  positionList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   predictionDistance: 0.75
   directionDistance: 0.25
   startingBestDistance: 1000
   radius: 0.05
-  rb: {fileID: 922484425981185543}
-  sb: {fileID: 922484425981185545}
   pathRadius: 0
   pathTheta: 0
   positionModifierRange: 0
+  yOffset: 0
+  chunkSize: 0.25
 --- !u!50 &922484425981185543
 Rigidbody2D:
   serializedVersion: 4
@@ -117,7 +115,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9e2a47d1c690a64f828e284bc147132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  locateRadius: 50
+  lr: {fileID: 0}
+  locateRadius: 10
   visionConeWidth: 20
 --- !u!114 &-8249690423942160738
 MonoBehaviour:
@@ -131,7 +130,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5c9cb56be162784880b0d869f9a9b2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  vc: {fileID: 922484425981185547}
   pf: {fileID: 922484425981185544}
+--- !u!58 &142372303471697521
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922484425981185542}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
 --- !u!1 &922484427191056625
 GameObject:
   m_ObjectHideFlags: 0
