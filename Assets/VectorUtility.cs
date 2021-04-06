@@ -25,12 +25,16 @@ public static class VectorUtility
         toSet.y = toSet.y * newMagnitude / oldMagnitude;
     }
 
-    public static void Limit(ref Vector2 toLimit, float maxForce)
+    public static void Limit(ref Vector2 toLimit, float minForce, float maxForce)
     {
         float magnitude = toLimit.magnitude;
         if (magnitude > maxForce)
         {
             SetMagnitude(ref toLimit, maxForce, magnitude);
+        }
+        else if (magnitude < minForce)
+        {
+            SetMagnitude(ref toLimit, minForce, toLimit.magnitude);
         }
     }
 }

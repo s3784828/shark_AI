@@ -8,12 +8,18 @@ public class SteeringBehaviour : MonoBehaviour
     public Rigidbody2D rb;
     public float maxAvoidForce;
     public float avoidanceDistance;
-    public float boxAngle;
     public float maxSpeed;
     public float maxForce;
-    
-    
+    public float minForce;
+    public Collider2D collider;
+
     private Vector2 movement;
+    private int playerColliderHashCode;
+
+    public void Start()
+    {
+        playerColliderHashCode = collider.GetHashCode();
+    }
 
     public void Move(Vector2 target)
     {
@@ -29,7 +35,7 @@ public class SteeringBehaviour : MonoBehaviour
         desired = desired.normalized;
         desired = desired * maxSpeed;
         Vector2 steer = desired - rb.velocity;
-        VectorUtility.Limit(ref steer, maxForce);
+        VectorUtility.Limit(ref steer, minForce, maxForce);
 
         lr.SetPosition(0, transform.position);
         Vector3 secondPosition = rb.velocity.normalized;
@@ -45,7 +51,6 @@ public class SteeringBehaviour : MonoBehaviour
         }
         
         transform.up = rb.velocity;
-
     }
 
     public void Avoid()
@@ -54,21 +59,22 @@ public class SteeringBehaviour : MonoBehaviour
         Vector2 avoidanceVector = Vector2.zero;
         Vector2 currentVelocityNormalised = rb.velocity.normalized;
         RaycastHit2D hit = Physics2D.Raycast((Vector2)transform.position, (Vector2)transform.up, avoidanceDistance);
-        if (hit)
+        if (hit && hit.collider.GetHashCode() != playerColliderHashCode)
         {
             avoidanceVector = (Vector2)hit.point - (Vector2)hit.collider.transform.position;
             avoidanceVector = avoidanceVector.normalized * maxAvoidForce;
         }
 
         rb.velocity += avoidanceVector * Time.fixedDeltaTime;
-        //rb.AddForce(avoidanceVector * Time.fixedDeltaTime);
     }
 
     public bool CanAvoid()
     {
+        bool canAvoid = false;
         Vector2 currentVelocityNormalised = rb.velocity.normalized;
         RaycastHit2D hit = Physics2D.Raycast((Vector2)transform.position, (Vector2)transform.up, avoidanceDistance);
-        return hit;
+        canAvoid = (hit != null && hit.collider.GetHashCode() != playerColliderHashCode) ? true : false;
+        return canAvoid;
     }
 
 

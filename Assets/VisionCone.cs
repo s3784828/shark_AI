@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class VisionCone : MonoBehaviour
 {
-    public LineRenderer lr;
     public float locateRadius;
-    public float visionConeWidth;
+    public Collider2D collider;
 
-    private List<Transform> watching;
+    private int playerColliderHashCode;
 
     // Start is called before the first frame update
     void Start()
     {
+        playerColliderHashCode = collider.GetHashCode();
     }
 
     // Update is called once per frame
@@ -21,50 +21,19 @@ public class VisionCone : MonoBehaviour
         
     }
 
-    public Vector2 GetObjectPosInVisionCone()
+    public GameObject GetObjectInVisionCone(float forwardDistance)
     {
-        Vector2 objectPos = Vector2.zero;
-        List<Collider2D> inCircle = new List<Collider2D>();
+        GameObject foundObject = null;
+        RaycastHit2D hit;
 
         foreach (Collider2D collider in Physics2D.OverlapCircleAll(transform.position, locateRadius))
         {
-            if (collider.CompareTag("Player"))
-            {
-                float angle = Vector2.Angle((Vector2)(transform.position + transform.up), (Vector2) (transform.position + collider.transform.position));
-
-
-                if (angle < visionConeWidth)
-                {
-                    lr.SetColors(Color.green, Color.green);
-                    lr.SetPosition(0, transform.position);
-                    lr.SetPosition(1, collider.transform.position);
-                    objectPos = (Vector2)collider.transform.position;
-                }
-                else
-                {
-                    lr.SetColors(Color.red, Color.red);
-                    lr.SetPosition(0, transform.position);
-                    lr.SetPosition(1, collider.transform.position);
-                }
-            }
-            else
-            {
-                lr.SetPosition(0, transform.position);
-                lr.SetPosition(1, transform.up * 0.25f);
-            }
+            if (collider.GetHashCode() != playerColliderHashCode && collider.gameObject.CompareTag("Player"))
+                foundObject = collider.gameObject;
         }
-        return objectPos;
+        return foundObject;
     }
 
-    bool InSight(Transform lookAt)
-    {
-        bool inSight = false;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.position + lookAt.position, locateRadius);
-        if (hit.transform.CompareTag("Player") && Vector2.Angle(transform.up, transform.position + lookAt.position) <= visionConeWidth)
-        {
-            inSight = true;
-        }
-        return inSight;
-    }
+    
 
 }

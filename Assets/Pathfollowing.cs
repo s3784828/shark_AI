@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Pathfollowing : MonoBehaviour
 {
+    public enum PathState
+    {
+        CIRCLE,
+        HEAD_TO
+    }
+
     [Header("Inspector values")]
     public Rigidbody2D rb;
     public SteeringBehaviour sb;
@@ -27,6 +33,8 @@ public class Pathfollowing : MonoBehaviour
     public float chunkSize;
 
     private Path[] path;
+    private int pathSize;
+    private PathState pathState;
 
     class Path
     {
@@ -40,10 +48,19 @@ public class Pathfollowing : MonoBehaviour
         }
     }
 
+    public void GeneratePath()
+    {
+        path = new Path[100];
+        for (int i = 0; i < 100; i++)
+        {
+            path[i] = new Path(Vector2.zero, Vector2.zero);
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        GeneratePatrolPath();
+        
     }
 
     // Update is called once per frame
@@ -52,37 +69,49 @@ public class Pathfollowing : MonoBehaviour
 
     }
 
-    void GeneratePatrolPath()
+    public void GenerateCirclePath(Vector2 center)
     {
         int numVertices = 360 / (int) pathTheta;
-        path = new Path[numVertices + 1];
         pathLR.positionCount = numVertices + 1;
         pathLR.loop = true;
+        pathSize = numVertices + 1;
 
         for (int i = 0; i <= numVertices; i++)
         {
             float theta = (float) i / (float)numVertices * 2.0f * Mathf.PI;
             
-            float x = transform.position.x + (pathRadius * Mathf.Cos(theta));
+            float x = center.x + (pathRadius * Mathf.Cos(theta));
             float xPos = Random.Range(x - positionModifierRange, x + positionModifierRange);
-            float y = transform.position.y + (pathRadius * Mathf.Sin(theta));
+            float y = center.y + (pathRadius * Mathf.Sin(theta));
             float yPos = Random.Range(y - positionModifierRange, y + positionModifierRange);
-            Vector3 pos = new Vector3(xPos, yPos, 0f);
+            Vector2 pos = new Vector2(xPos, yPos);
             //pathLR.SetPosition(i, pos);
 
-            if (path[i] == null)
-            {
-                path[i] = new Path(pos, Vector2.zero);
-            }
-            else
-            {
-                path[i].start = pos;
-            }
+            //if (path[i] == null)
+            //{
+            //    path[i] = new Path(pos, Vector2.zero);
+            //}
+            //else
+            //{
+            //    path[i].start = pos;
+            //}
+
+            //if (i == 0)
+            //{
+            //    path[numVertices] = new Path(Vector2.zero, (Vector2) pos);
+            //    //pathLR.SetPosition(numVertices, pos);
+            //}
+            //else
+            //{
+            //    path[i - 1].end = pos;
+            //}
+
+            path[i].start = pos;
 
             if (i == 0)
             {
-                path[numVertices] = new Path(Vector2.zero, (Vector2) pos);
-                //pathLR.SetPosition(numVertices, pos);
+                path[numVertices].end = pos;
+                
             }
             else
             {
@@ -90,10 +119,15 @@ public class Pathfollowing : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < path.Length; i++)
+
+
+        for (int i = 0; i <= numVertices; i++)
         {
+            
             pathLR.SetPosition(i, (Vector3) path[i].start);
         }
+
+        pathState = PathState.CIRCLE;
     }
 
     public void GenerateHeadToPath(Vector2 headToPosition)
@@ -102,10 +136,11 @@ public class Pathfollowing : MonoBehaviour
         Vector2 dir = (headToPosition - (Vector2)transform.position).normalized;
         float distance = Vector2.Distance((Vector2)transform.position, headToPosition);
         int numChunks = Mathf.RoundToInt(distance / chunkSize);
+        pathSize = numChunks;
         pathLR.positionCount = numChunks;
         pathLR.loop = false;
-        Debug.Log("distance = " + distance + " chunksize " + chunkSize + " numchunks " + numChunks);
-        path = new Path[numChunks];
+        
+        //path = new Path[numChunks];
         if (numChunks > 0)
         {
             path[0] = new Path((Vector2)transform.position, Vector2.zero);
@@ -116,20 +151,25 @@ public class Pathfollowing : MonoBehaviour
 
                 if (i < numChunks - 1)
                 {
-                    path[i + 1] = new Path(path[i].end, Vector2.zero);
+                    //path[i + 1] = new Path(path[i].end, Vector2.zero);
+                    path[i + 1].start = path[i].end;
                 }
             }
             path[numChunks - 1].end = headToPosition;
         }
         else
         {
-            path[0] = new Path((Vector2)transform.position, headToPosition);
+            //path[0] = new Path((Vector2)transform.position, headToPosition);
+            path[0].start = (Vector2)transform.position;
+            path[0].end = headToPosition;
         }
         
         for (int i = 0; i < numChunks; i++)
         {
             pathLR.SetPosition(i, path[i].start);
         }
+
+        pathState = PathState.HEAD_TO;
     }
 
     public void FollowPath()
@@ -148,8 +188,9 @@ public class Pathfollowing : MonoBehaviour
 
         float bestDistance = startingBestDistance;
         Vector2 targetNormalPoint = Vector2.zero;
-        for (int i = 0; i < path.Length; i++)
+        for (int i = 0; i < pathSize; i++)
         {
+            pointA = path[i].start;
             pointA = path[i].start;
             pointB = path[i].end;
             /*
@@ -157,11 +198,7 @@ public class Pathfollowing : MonoBehaviour
             */
             normalPoint = GetNormalPoint(predictedLoc, pointA, pointB);
 
-            if (normalPoint.x < pointA.x)
-            {
-                normalPoint = pointA;
-            }
-            else if (normalPoint.x > pointB.x)
+            if (!InPath(normalPoint, pointA, pointB))
             {
                 normalPoint = pointB;
             }
@@ -205,6 +242,44 @@ public class Pathfollowing : MonoBehaviour
 
     }
 
+    bool InPath(Vector2 normalPoint, Vector2 pointA, Vector2 pointB)
+    {
+        bool inX = true;
+        bool inY = true;
+
+        if (pointB.x > pointA.x)
+        {
+            if (normalPoint.x < pointA.x || normalPoint.x > pointB.x)
+            {
+                inX = false;
+            }
+        }
+        else
+        {
+            if (normalPoint.x > pointA.x || normalPoint.x < pointB.x)
+            {
+                inX = false;
+            }
+        }
+
+        if (pointB.y > pointA.y)
+        {
+            if (normalPoint.y < pointA.y || normalPoint.y > pointB.y)
+            {
+                inY = false;
+            }
+        }
+        else
+        {
+            if (normalPoint.y > pointA.y || normalPoint.y < pointB.y)
+            {
+                inY = false;
+            }
+        }
+
+        return (inX == false && inY == false) ? false : true;
+    }
+
     Vector2 GetNormalPoint(Vector2 predictedLoc, Vector2 pointA, Vector2 pointB)
     {
         Vector2 ap = predictedLoc - pointA;
@@ -234,6 +309,9 @@ public class Pathfollowing : MonoBehaviour
         return (Vector2)transform.position + predict;
     }
 
-    
+    public PathState CurrentPath()
+    {
+        return pathState;
+    }
 
 }
