@@ -52,17 +52,13 @@ public class Torpedo : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.GetHashCode() != playerColliderHashCode && !destroyed)
+        if (collision.collider.CompareTag("Torpedo"))
+            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), collision.collider);
+
+        else if (!collision.collider.CompareTag("Torpedo") && collision.collider.GetHashCode() != playerColliderHashCode && !destroyed)
             StartCoroutine(TurnOff(0.25f));
     }
 
-    //private void OnTriggerEnter2D(Collision2D collision)
-    //{
-    //    if (collision.collider.GetHashCode() != playerColliderHashCode && !destroyed)
-    //        StartCoroutine(TurnOff(0.25f));
-    //}
-
-    //private void OnTri
 
     private void OnEnable()
     {
