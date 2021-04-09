@@ -50,13 +50,13 @@ public class Torpedo : MonoBehaviour
     }
 
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collision.collider.CompareTag("Torpedo"))
-            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), collision.collider);
-
-        else if (!collision.collider.CompareTag("Torpedo") && collision.collider.GetHashCode() != playerColliderHashCode && !destroyed)
+        if (!collider.CompareTag("Torpedo") && !collider.CompareTag("Shark") && !destroyed)
+        {
+            tr.Clear();
             StartCoroutine(TurnOff(0.25f));
+        }
     }
 
 

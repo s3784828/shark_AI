@@ -479,11 +479,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lr: {fileID: 0}
   rb: {fileID: 6751434281262290197}
-  maxAvoidForce: 5
-  avoidanceDistance: 3
-  maxSpeed: 5
+  avoiding: 0
+  maxAvoidForce: 20
+  avoidanceDistance: 0.4
+  maxSpeed: 8.5
   maxForce: 10
-  minForce: 5
+  minForce: 7
   collider: {fileID: 6751434281941623470}
 --- !u!114 &6751434281262290196
 MonoBehaviour:
@@ -499,13 +500,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 6751434281262290197}
   sb: {fileID: 6751434281262290199}
-  pathLR: {fileID: 3530079894658152449, guid: a96e49d7db90a9f43acb4fbacba5f969, type: 3}
+  pathLR: {fileID: 0}
   desiredVelocityLR: {fileID: 0}
   pathNormalLR: {fileID: 0}
   predictionDistance: 0.75
   directionDistance: 0.25
   startingBestDistance: 1000
-  radius: 0.05
+  radius: 0.0025
   pathRadius: 12
   pathTheta: 42.5
   positionModifierRange: 0.85
@@ -558,12 +559,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d516afb82b9c30847b71dba915df4075, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  morphed: 0
-  morphedForm: {fileID: 0}
   pf: {fileID: 6751434281262290196}
   vc: {fileID: 6751434281262290202}
   tr: {fileID: 6751434280142439524}
-  tr_additional: {fileID: 0}
   circlePathDistance: 15
   roamDistanceMultiplier: 20
   stopPatrolTime: 8

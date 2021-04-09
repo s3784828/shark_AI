@@ -400,8 +400,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lr: {fileID: 0}
   rb: {fileID: 2357099586244415150}
-  maxAvoidForce: 5
-  avoidanceDistance: 3
+  avoiding: 0
+  maxAvoidForce: 20
+  avoidanceDistance: 0.35
   maxSpeed: 5
   maxForce: 10
   minForce: 5
@@ -426,7 +427,7 @@ MonoBehaviour:
   predictionDistance: 0.75
   directionDistance: 0.25
   startingBestDistance: 1000
-  radius: 0.05
+  radius: 1.25
   pathRadius: 12
   pathTheta: 42.5
   positionModifierRange: 0.85

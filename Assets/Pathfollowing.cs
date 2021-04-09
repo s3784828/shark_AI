@@ -233,7 +233,7 @@ public class Pathfollowing : MonoBehaviour
         if (distance > radius)
         {
             pathNormalLR.SetColors(Color.red, Color.red);
-            sb.Seek(target);
+            sb.Move(target);
         }
         else
         {

@@ -7,6 +7,7 @@ TagManager:
   - Shark
   - Turret
   - Torpedo
+  - Wall
   layers:
   - Default
   - TransparentFX
